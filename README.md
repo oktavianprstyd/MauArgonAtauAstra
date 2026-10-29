@@ -24,9 +24,59 @@
 
 ## Overview Proyek
 
-Dalam ekosistem toko online (e-commerce), memahami intensi atau niat belanja pengunjung selama berselancar di situs web merupakan faktor penting untuk meningkatkan rasio konversi penjualan. Sebagian besar pengunjung sering kali hanya melihat-lihat katalog produk tanpa melakukan transaksi pembelian.
+Dalam ekosistem toko online (*e-commerce*), memahami intensi atau niat belanja pengunjung selama berselancar di situs web merupakan faktor penting untuk meningkatkan rasio konversi penjualan. Sebagian besar pengunjung sering kali hanya melihat-lihat katalog produk tanpa melakukan transaksi pembelian.
 
 Proyek ini bertujuan untuk mengolah dan menganalisis data sesi penjelajahan web guna memprediksi apakah suatu sesi kunjungan pengguna akan berujung pada transaksi pembelian (`Revenue = True`) atau tidak (`Revenue = False`). Melalui pendekatan Data Science, pola perilaku navigasi pengunjung diharapkan dapat memberikan pemahaman yang jelas bagi pemilik platform dalam mengenali karakteristik pengunjung yang berpotensi melakukan pembelian.
+
+---
+
+## Tautan Repository & Notebook Utama
+
+- **Repository GitHub**: [https://github.com/oktavianprstyd/MauArgonAtauAstra](https://github.com/oktavianprstyd/MauArgonAtauAstra)
+- **Jupyter Notebook Proyek**: [`notebook.ipynb`](notebook.ipynb)
+
+---
+
+## Struktur Direktori Repository
+
+```text
+MauArgonAtauAstra/
+│
+├── data/
+│   ├── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
+│   └── online_shoppers_intention_clean.csv   # Dataset hasil cleaning & preprocessing
+│
+├── notebook.ipynb                            # Jupyter Notebook utama (Business Understanding, Data Gathering, EDA, Cleaning, Preprocessing)
+├── .gitignore                                # Konfigurasi file yang diabaikan Git
+└── README.md                                 # Dokumentasi laporan proyek
+```
+
+---
+
+## Alur Kerja Notebook (*Workflow*)
+
+Notebook [`notebook.ipynb`](notebook.ipynb) dirancang secara sistematis sesuai dengan panduan praktikum Data Science:
+
+1. **Business Understanding**
+   - Menjelaskan latar belakang bisnis pada platform *e-commerce*, tantangan *conversion rate*, rumusan masalah, tujuan analisis, serta metrik evaluasi Machine Learning (*Precision*, *Recall*, *F1-Score*, *ROC-AUC* karena kondisi *class imbalance*).
+2. **Data Gathering**
+   - Memuat pustaka standar praktikum (`pandas`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`).
+   - Melakukan pemuatan dataset dan inspeksi awal struktur, bentuk dimensi (12.330 baris $\times$ 18 kolom), dan tipe data.
+3. **Exploratory Data Analysis (EDA)**
+   - Statistik deskriptif & analisis *skewness* (Right-skewed pada sebagian besar metrik durasi dan nilai halaman).
+   - Analisis ketimpangan kelas target `Revenue` (84,53% `False` vs 15,47% `True`).
+   - Visualisasi distribusi univariat & bivariat terhadap `Revenue`.
+   - Analisis korelasi (*heatmap*): Mengidentifikasi multikolinearitas antara `BounceRates` dan `ExitRates` ($r \approx 0.91$) serta pengaruh kuat `PageValues` terhadap konversi ($r \approx 0.49$).
+4. **Data Cleaning**
+   - Pemeriksaan *missing values*: Ditemukan 0 nilai kosong (dataset lengkap).
+   - Penanganan data duplikat: Mengidentifikasi dan menghapus 125 baris duplikat untuk mencegah distorsi bobot data.
+   - Deteksi & analisis *outliers*: Menghitung batas *outlier* menggunakan metode Interquartile Range (IQR) serta memberikan justifikasi domain bahwa nilai ekstrem durasi/belanja merupakan perilaku nyata konsumen antusias (*heavy users*), sehingga dipertahankan dan distandarisasi pada tahap *preprocessing*.
+5. **Data Preprocessing**
+   - *Feature Engineering*: Membentuk fitur ringkasan sesi `Total_Pages` dan `Total_Duration`.
+   - *Categorical Encoding*: Konversi fitur *boolean* (`Weekend`, `Revenue`) ke nilai biner integer (0 dan 1), serta penerapan *One-Hot Encoding* (`pd.get_dummies`) untuk fitur kategorikal nominal (`Month`, `VisitorType`).
+   - *Train-Test Split*: Membagi data menjadi 80% data latih dan 20% data uji menggunakan *stratified sampling* (`stratify=y`).
+   - *Feature Scaling*: Menstandarisasi fitur numerik dengan `StandardScaler` (Mean = 0, Std = 1) untuk mencegah bias jarak/gradien, dengan penerapan `fit` hanya pada data latih guna mencegah *data leakage*.
+   - Menyimpan dataset bersih ke file `data/online_shoppers_intention_clean.csv`.
 
 ---
 
@@ -37,7 +87,7 @@ Dataset yang digunakan dalam proyek ini bersumber dari repositori publik:
 - **Sumber**: [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset)
 - **Sitasi**: C. Sakar & S. Polat (2019), *Online Shoppers Purchasing Intention Dataset*, UCI Machine Learning Repository.
 - **Lisensi Data**: Creative Commons Attribution 4.0 International (CC BY 4.0)
-- **Jumlah Data**: 12.330 baris (sesi kunjungan)
+- **Jumlah Data Awal**: 12.330 baris (sesi kunjungan)
 - **Jumlah Kolom**: 18 atribut (10 fitur numerik, 8 fitur kategorikal/boolean termasuk kolom target `Revenue`)
 
 ### Kamus Data
@@ -62,3 +112,23 @@ Dataset yang digunakan dalam proyek ini bersumber dari repositori publik:
 | 16 | `VisitorType` | Object | Tipe pengunjung (`Returning_Visitor`, `New_Visitor`, atau `Other`) |
 | 17 | `Weekend` | Boolean | Menunjukkan apakah sesi berlangsung pada akhir pekan (`True`/`False`) |
 | 18 | `Revenue` | Boolean | Kolom target: menunjukkan apakah sesi menghasilkan transaksi pembelian (`True`/`False`) |
+
+---
+
+## Petunjuk Menjalankan Notebook
+
+1. **Clone repository ini:**
+   ```bash
+   git clone https://github.com/oktavianprstyd/MauArgonAtauAstra.git
+   cd MauArgonAtauAstra
+   ```
+
+2. **Pastikan library Python yang dibutuhkan terinstal:**
+   ```bash
+   pip install pandas numpy matplotlib seaborn scikit-learn jupyter
+   ```
+
+3. **Jalankan Jupyter Notebook:**
+   ```bash
+   jupyter notebook notebook.ipynb
+   ```
