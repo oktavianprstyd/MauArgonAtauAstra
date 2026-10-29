@@ -43,8 +43,7 @@ Proyek ini bertujuan untuk mengolah dan menganalisis data sesi penjelajahan web 
 MauArgonAtauAstra/
 │
 ├── data/
-│   ├── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
-│   └── online_shoppers_intention_clean.csv   # Dataset hasil cleaning & preprocessing
+│   └── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
 │
 ├── notebook.ipynb                            # Jupyter Notebook utama (Business Understanding, Data Gathering, EDA, Cleaning, Preprocessing)
 ├── .gitignore                                # Konfigurasi file yang diabaikan Git
@@ -76,7 +75,7 @@ Notebook [`notebook.ipynb`](notebook.ipynb) dirancang secara sistematis sesuai d
    - *Categorical Encoding*: Konversi fitur *boolean* (`Weekend`, `Revenue`) ke nilai biner integer (0 dan 1), serta penerapan *One-Hot Encoding* (`pd.get_dummies`) untuk fitur kategorikal nominal (`Month`, `VisitorType`).
    - *Train-Test Split*: Membagi data menjadi 80% data latih dan 20% data uji menggunakan *stratified sampling* (`stratify=y`).
    - *Feature Scaling*: Menstandarisasi fitur numerik dengan `StandardScaler` (Mean = 0, Std = 1) untuk mencegah bias jarak/gradien, dengan penerapan `fit` hanya pada data latih guna mencegah *data leakage*.
-   - Menyimpan dataset bersih ke file `data/online_shoppers_intention_clean.csv`.
+   - Seluruh data bersih dan matriks fitur tersimpan langsung di dalam memori DataFrame (`df`, `X_train_scaled`, `X_test_scaled`, `y_train`, `y_test`) yang siap digunakan untuk pemodelan Machine Learning.
 
 ---
 
