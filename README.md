@@ -45,7 +45,7 @@ MauArgonAtauAstra/
 ├── data/
 │   └── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
 │
-├── notebook.ipynb                            # Jupyter Notebook utama (Business Understanding, Data Gathering, EDA, Cleaning, Preprocessing)
+├── notebook.ipynb                            # Jupyter Notebook utama dari Business Understanding hingga Konklusi
 ├── .gitignore                                # Konfigurasi file yang diabaikan Git
 └── README.md                                 # Dokumentasi laporan proyek
 ```
@@ -70,12 +70,40 @@ Notebook [`notebook.ipynb`](notebook.ipynb) dirancang secara sistematis sesuai d
    - Pemeriksaan *missing values*: Ditemukan 0 nilai kosong (dataset lengkap).
    - Penanganan data duplikat: Mengidentifikasi dan menghapus 125 baris duplikat untuk mencegah distorsi bobot data.
    - Deteksi & analisis *outliers*: Menghitung batas *outlier* menggunakan metode Interquartile Range (IQR) serta memberikan justifikasi domain bahwa nilai ekstrem durasi/belanja merupakan perilaku nyata konsumen antusias (*heavy users*), sehingga dipertahankan dan distandarisasi pada tahap *preprocessing*.
-5. **Data Preprocessing**
-   - *Feature Engineering*: Membentuk fitur ringkasan sesi `Total_Pages` dan `Total_Duration`.
-   - *Categorical Encoding*: Konversi fitur *boolean* (`Weekend`, `Revenue`) ke nilai biner integer (0 dan 1), serta penerapan *One-Hot Encoding* (`pd.get_dummies`) untuk fitur kategorikal nominal (`Month`, `VisitorType`).
-   - *Train-Test Split*: Membagi data menjadi 80% data latih dan 20% data uji menggunakan *stratified sampling* (`stratify=y`).
-   - *Feature Scaling*: Menstandarisasi fitur numerik dengan `StandardScaler` (Mean = 0, Std = 1) untuk mencegah bias jarak/gradien, dengan penerapan `fit` hanya pada data latih guna mencegah *data leakage*.
-   - Seluruh data bersih dan matriks fitur tersimpan langsung di dalam memori DataFrame (`df`, `X_train_scaled`, `X_test_scaled`, `y_train`, `y_test`) yang siap digunakan untuk pemodelan Machine Learning.
+5. **Preprocessing dan Pemilihan Fitur**
+   - Membuat `Total_Pages` dan `Total_Duration`, memisahkan data secara terstratifikasi 80:20, dan mempelajari encoding kategori serta scaling di dalam pipeline.
+   - Membandingkan pilihan fitur pada data latih, kemudian melatih dan mengevaluasi dua skenario dengan dan tanpa `PageValues`. Waktu perhitungan fitur ini sebelum checkout belum bisa dipastikan.
+6. **Modelling dan Tuning**
+   - Membandingkan SVM kernel RBF dan Random Forest. Memilih konfigurasi serta ambang prediksi berdasarkan F1 kelas pembelian pada validasi silang terstratifikasi tiga fold.
+7. **Evaluasi dan Konklusi**
+   - Membandingkan precision, recall, F1, dan ROC-AUC dengan confusion matrix dan kurva ROC.
+   - Melatih ulang kandidat terbaik tiap skenario berdasarkan F1 validasi. Data uji yang sama memudahkan perbandingan dengan eksperimen sebelumnya.
+
+### Hasil Eksperimen Lanjutan pada Data Uji
+
+| Skenario | Model | Precision | Recall | F1 | ROC-AUC |
+|---|---|---:|---:|---:|---:|
+| Dengan PageValues | SVM | 0,628 | 0,743 | 0,681 | 0,897 |
+| Dengan PageValues | Random Forest | 0,662 | 0,702 | 0,681 | 0,931 |
+| Tanpa PageValues | SVM | 0,324 | 0,555 | 0,409 | 0,769 |
+| Tanpa PageValues | Random Forest | 0,350 | 0,568 | 0,433 | 0,788 |
+
+SVM terpilih untuk skenario dengan `PageValues` berdasarkan F1 validasi 0,689. Di data uji, SVM mendeteksi 284 dari 382 sesi pembelian dan menghasilkan 168 prediksi beli yang keliru. Tanpa fitur ini, Random Forest terpilih dengan F1 uji 0,433, naik dari pembanding 0,424. Penggunaan model dengan `PageValues` untuk prediksi sebelum checkout memerlukan verifikasi bahwa fitur tersedia ketika model membuat prediksi.
+
+
+### Hasil Akhir Setelah Tuning Fitur Perilaku
+
+| Model dengan PageValues | Precision | Recall | F1 uji | ROC-AUC |
+|---|---:|---:|---:|---:|
+| Random Forest | 0,678 | 0,707 | 0,692 | 0,933 |
+| SVM | 0,638 | 0,738 | 0,684 | 0,896 |
+
+Random Forest menjadi model utama pada eksperimen lanjutan dengan F1 validasi 0,692. Model menemukan 270 dari 382 sesi pembelian dan menghasilkan 128 prediksi beli yang keliru. Hasil ini menggunakan holdout yang sama seperti eksperimen sebelumnya. Generalisasi peningkatan perlu dikonfirmasi pada sesi baru.
+
+
+Uji kontribusi fitur menggunakan enam fold luar dengan kalibrasi ambang di fold internal. Random Forest dengan fitur lengkap menang di semua fold dengan rata-rata F1 0,688, dibandingkan 0,660 untuk `PageValues` saja dan 0,663 untuk fitur terpilih. Model lengkap dipertahankan.
+
+Eksperimen menuju F1 0,80 menguji enam konfigurasi Random Forest tambahan. F1 validasinya berada pada rentang 0,684 hingga 0,690, sehingga model pembanding dipertahankan. F1 uji kelas pembelian tetap 0,692 dan akurasi uji 90,17%.
 
 ---
 
