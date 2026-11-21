@@ -45,7 +45,7 @@ MauArgonAtauAstra/
 ├── data/
 │   └── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
 │
-├── notebook.ipynb                            # Jupyter Notebook utama (Business Understanding, Data Gathering, EDA, Cleaning, Preprocessing)
+├── notebook.ipynb                            # Jupyter Notebook utama dari Business Understanding hingga Konklusi
 ├── .gitignore                                # Konfigurasi file yang diabaikan Git
 └── README.md                                 # Dokumentasi laporan proyek
 ```
@@ -74,8 +74,25 @@ Notebook [`notebook.ipynb`](notebook.ipynb) dirancang secara sistematis sesuai d
    - *Feature Engineering*: Membentuk fitur ringkasan sesi `Total_Pages` dan `Total_Duration`.
    - *Categorical Encoding*: Konversi fitur *boolean* (`Weekend`, `Revenue`) ke nilai biner integer (0 dan 1), serta penerapan *One-Hot Encoding* (`pd.get_dummies`) untuk fitur kategorikal nominal (`Month`, `VisitorType`).
    - *Train-Test Split*: Membagi data menjadi 80% data latih dan 20% data uji menggunakan *stratified sampling* (`stratify=y`).
-   - *Feature Scaling*: Menstandarisasi fitur numerik dengan `StandardScaler` (Mean = 0, Std = 1) untuk mencegah bias jarak/gradien, dengan penerapan `fit` hanya pada data latih guna mencegah *data leakage*.
-   - Seluruh data bersih dan matriks fitur tersimpan langsung di dalam memori DataFrame (`df`, `X_train_scaled`, `X_test_scaled`, `y_train`, `y_test`) yang siap digunakan untuk pemodelan Machine Learning.
+   - *Feature Selection*: Mengecualikan `PageValues` karena waktu ketersediaannya sebelum prediksi belum diketahui, serta `BounceRates` karena korelasinya tinggi dengan `ExitRates`.
+   - Pipeline model melakukan one-hot encoding untuk kode kategori seperti browser dan sumber lalu lintas. Pipeline SVM juga melakukan scaling fitur numerik dengan statistik dari data latih pada tiap fold.
+6. **Modelling**
+   - Melatih SVM dengan kernel RBF dan Random Forest dengan 200 pohon untuk klasifikasi biner `Revenue`.
+   - Memilih model berdasarkan rata-rata F1 kelas pembelian dari validasi silang terstratifikasi dengan tiga fold pada data latih.
+7. **Evaluasi**
+   - Membandingkan precision, recall, F1, serta ROC-AUC pada data uji yang sama. Notebook menyertakan confusion matrix dan kurva ROC untuk kedua model.
+8. **Konklusi**
+   - SVM terpilih dengan F1 validasi 0,393. SVM mendeteksi lebih banyak sesi pembelian, sementara Random Forest memiliki precision dan ROC-AUC uji lebih tinggi.
+   - Data berisi agregat sesi. Kemampuan membuat prediksi sebelum sesi berakhir atau menerapkannya ke situs lain belum diuji.
+
+### Hasil pada Data Uji
+
+| Model | Precision | Recall | F1 | ROC-AUC |
+|---|---:|---:|---:|---:|
+| SVM | 0,279 | 0,712 | 0,401 | 0,756 |
+| Random Forest | 0,387 | 0,277 | 0,323 | 0,782 |
+
+SVM menangkap sekitar 71% sesi yang berakhir dengan pembelian. Sekitar 28% sesi yang diprediksi membeli benar-benar berakhir dengan pembelian.
 
 ---
 
