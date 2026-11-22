@@ -26,14 +26,14 @@
 
 Dalam ekosistem toko online (*e-commerce*), memahami intensi atau niat belanja pengunjung selama berselancar di situs web merupakan faktor penting untuk meningkatkan rasio konversi penjualan. Sebagian besar pengunjung sering kali hanya melihat-lihat katalog produk tanpa melakukan transaksi pembelian.
 
-Proyek ini bertujuan untuk mengolah dan menganalisis data sesi penjelajahan web guna memprediksi apakah suatu sesi kunjungan pengguna akan berujung pada transaksi pembelian (`Revenue = True`) atau tidak (`Revenue = False`). Melalui pendekatan Data Science, pola perilaku navigasi pengunjung diharapkan dapat memberikan pemahaman yang jelas bagi pemilik platform dalam mengenali karakteristik pengunjung yang berpotensi melakukan pembelian.
+Proyek ini bertujuan untuk mengolah dan menganalisis data sesi penjelajahan web guna memprediksi apakah suatu sesi kunjungan pengguna akan berujung pada transaksi pembelian (`Revenue = True`) atau tidak (`Revenue = False`). Melalui pendekatan Data Science, pola perilaku navigasi pengunjung diharapkan dapat memberikan pemahaman yang jelas bagi pemilik platform dalam mengenali karakteristik pengunjung yang berpotensi melakukan pembelian serta mendukung keputusan intervensi pemasaran yang tepat sasaran.
 
 ---
 
 ## Tautan Repository & Notebook Utama
 
 - **Repository GitHub**: [https://github.com/oktavianprstyd/MauArgonAtauAstra](https://github.com/oktavianprstyd/MauArgonAtauAstra)
-- **Jupyter Notebook Proyek**: [`notebook.ipynb`](notebook.ipynb)
+- **Jupyter Notebook Proyek**: [notebook.ipynb](https://www.google.com/search?q=notebook.ipynb)
 
 ---
 
@@ -45,7 +45,8 @@ MauArgonAtauAstra/
 ├── data/
 │   └── online_shoppers_intention.csv         # Dataset mentah asli dari UCI Machine Learning Repository
 │
-├── notebook.ipynb                            # Jupyter Notebook utama dari Business Understanding hingga Konklusi
+├── notebook.ipynb                            # Jupyter Notebook utama dari Business Understanding hingga Rekomendasi Bisnis
+├── requirements.txt                          # Daftar dependensi library Python untuk reproduksibilitas
 ├── .gitignore                                # Konfigurasi file yang diabaikan Git
 └── README.md                                 # Dokumentasi laporan proyek
 ```
@@ -54,56 +55,68 @@ MauArgonAtauAstra/
 
 ## Alur Kerja Notebook (*Workflow*)
 
-Notebook [`notebook.ipynb`](notebook.ipynb) dirancang secara sistematis sesuai dengan panduan praktikum Data Science:
+Notebook [notebook.ipynb](https://www.google.com/search?q=notebook.ipynb) dirancang secara sistematis sesuai dengan panduan praktikum Data Science:
 
 1. **Business Understanding**
    - Menjelaskan latar belakang bisnis pada platform *e-commerce*, tantangan *conversion rate*, rumusan masalah, tujuan analisis, serta metrik evaluasi Machine Learning (*Precision*, *Recall*, *F1-Score*, *ROC-AUC* karena kondisi *class imbalance*).
-2. **Data Gathering**
+2. **Data Gathering & Inspeksi Awal**
    - Memuat pustaka standar praktikum (`pandas`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`).
    - Melakukan pemuatan dataset dan inspeksi awal struktur, bentuk dimensi (12.330 baris $\times$ 18 kolom), dan tipe data.
 3. **Exploratory Data Analysis (EDA)**
-   - Statistik deskriptif & analisis *skewness* (Right-skewed pada sebagian besar metrik durasi dan nilai halaman).
-   - Analisis ketimpangan kelas target `Revenue` (84,53% `False` vs 15,47% `True`).
-   - Visualisasi distribusi univariat & bivariat terhadap `Revenue`.
+   - Statistik deskriptif & analisis *skewness* (*right-skewed* pada sebagian besar metrik durasi dan nilai halaman).
+   - Analisis ketimpangan kelas target `Revenue` (84,53% `False` vs 15,47% `True` pada data mentah).
+   - Visualisasi distribusi univariat, bivariat terhadap `Revenue`, serta analisis *Conversion Rate (%)* berdasarkan `Month`, `VisitorType`, `Weekend`, dan `SpecialDay` (puncak konversi di bulan November sebesar 25,35%).
    - Analisis korelasi (*heatmap*): Mengidentifikasi multikolinearitas antara `BounceRates` dan `ExitRates` ($r \approx 0.91$) serta pengaruh kuat `PageValues` terhadap konversi ($r \approx 0.49$).
 4. **Data Cleaning**
    - Pemeriksaan *missing values*: Ditemukan 0 nilai kosong (dataset lengkap).
-   - Penanganan data duplikat: Mengidentifikasi dan menghapus 125 baris duplikat untuk mencegah distorsi bobot data.
+   - Penanganan data duplikat: Mengidentifikasi dan menghapus 125 baris duplikat (menyisakan 12.205 baris dengan proporsi `Revenue = True` sebesar 15,63%) untuk mencegah distorsi bobot data.
    - Deteksi & analisis *outliers*: Menghitung batas *outlier* menggunakan metode Interquartile Range (IQR) serta memberikan justifikasi domain bahwa nilai ekstrem durasi/belanja merupakan perilaku nyata konsumen antusias (*heavy users*), sehingga dipertahankan dan distandarisasi pada tahap *preprocessing*.
-5. **Preprocessing dan Pemilihan Fitur**
-   - Membuat `Total_Pages` dan `Total_Duration`, memisahkan data secara terstratifikasi 80:20, dan mempelajari encoding kategori serta scaling di dalam pipeline.
-   - Membandingkan pilihan fitur pada data latih, kemudian melatih dan mengevaluasi dua skenario dengan dan tanpa `PageValues`. Waktu perhitungan fitur ini sebelum checkout belum bisa dipastikan.
+5. **Audit Data, Preprocessing, dan Ringkasan *Before vs. After***
+   - Membuat fitur agregat `Total_Pages` dan `Total_Duration`, memisahkan data secara terstratifikasi 80:20 (9.764 data latih & 2.441 data uji), dan mempelajari *encoding* kategori serta *scaling* di dalam `ColumnTransformer` + `Pipeline` guna mencegah *data leakage*.
+   - Menyajikan tabel ringkasan *Before vs. After Cleaning & Preprocessing*.
 6. **Modelling dan Tuning**
-   - Membandingkan SVM kernel RBF dan Random Forest. Memilih konfigurasi serta ambang prediksi berdasarkan F1 kelas pembelian pada validasi silang terstratifikasi tiga fold.
-7. **Evaluasi dan Konklusi**
-   - Membandingkan precision, recall, F1, dan ROC-AUC dengan confusion matrix dan kurva ROC.
-   - Melatih ulang kandidat terbaik tiap skenario berdasarkan F1 validasi. Data uji yang sama memudahkan perbandingan dengan eksperimen sebelumnya.
+   - Membandingkan SVM kernel RBF dan Random Forest dengan pemilihan konfigurasi serta kalibrasi ambang prediksi berdasarkan F1 kelas pembelian pada validasi silang terstratifikasi 3-fold.
+7. **Evaluasi Data Uji**
+   - Membandingkan *Precision*, *Recall*, *F1-Score*, dan *ROC-AUC* dilengkapi *confusion matrix* dan kurva ROC.
+8. **Konklusi Awal**
+   - Merangkum performa model dasar dan arah peningkatan eksperimen lanjutan.
+9. **Eksperimen Lanjutan Dengan dan Tanpa `PageValues`**
+   - Membandingkan performa SVM dan Random Forest pada skenario dengan dan tanpa `PageValues` untuk mengantisipasi ketersediaan fitur tersebut sebelum *checkout*.
+10. **Pengujian Fitur Perilaku dan Tuning Lanjutan**
+    - Menambahkan fitur perilaku sesi (`Ada_PageValue`, `Durasi_per_Halaman`, `Proporsi_Halaman_Produk`) serta *tuning* hiperparameter dan ambang batas lanjutan.
+11. **Uji Kontribusi Kelompok Fitur**
+    - Validasi silang bersarang (*nested CV* 6 fold luar dengan kalibrasi ambang internal) membandingkan fitur lengkap, fitur terpilih, dan `PageValues` saja.
+12. **Uji Lanjutan Menuju F1 0,80 & Analisis Diagnostik Model**
+    - Menguji 6 konfigurasi Random Forest tambahan, dilanjutkan evaluasi **Kurva Precision-Recall (PR Curve)**, **Permutation Feature Importance**, dan **Error Analysis** (karakteristik *False Positive* dan *False Negative*).
+13. **Evaluasi Lengkap per Model & Terjemahan ke Dampak Bisnis (13.1)**
+    - Menyajikan perbandingan metrik lengkap (Akurasi, Precision, Recall, F1 pembelian, Macro F1, Weighted F1, ROC-AUC), laporan per kelas, *confusion matrix*, serta strategi intervensi berbasis probabilitas ($P \ge 0.70$, $0.40 \le P < 0.70$, $P < 0.40$) dan kalibrasi ambang batas (*threshold calibration*).
 
-### Hasil Eksperimen Lanjutan pada Data Uji
+---
+
+## Ringkasan Hasil Eksperimen
+
+### 1. Eksperimen Skenario Dengan & Tanpa `PageValues` (Data Uji)
 
 | Skenario | Model | Precision | Recall | F1 | ROC-AUC |
-|---|---|---:|---:|---:|---:|
-| Dengan PageValues | SVM | 0,628 | 0,743 | 0,681 | 0,897 |
-| Dengan PageValues | Random Forest | 0,662 | 0,702 | 0,681 | 0,931 |
-| Tanpa PageValues | SVM | 0,324 | 0,555 | 0,409 | 0,769 |
-| Tanpa PageValues | Random Forest | 0,350 | 0,568 | 0,433 | 0,788 |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| Dengan `PageValues` | SVM | 0,628 | 0,743 | 0,681 | 0,897 |
+| Dengan `PageValues` | Random Forest | 0,662 | 0,702 | 0,681 | 0,931 |
+| Tanpa `PageValues` | SVM | 0,324 | 0,555 | 0,409 | 0,769 |
+| Tanpa `PageValues` | Random Forest | 0,350 | 0,568 | 0,433 | 0,788 |
 
-SVM terpilih untuk skenario dengan `PageValues` berdasarkan F1 validasi 0,689. Di data uji, SVM mendeteksi 284 dari 382 sesi pembelian dan menghasilkan 168 prediksi beli yang keliru. Tanpa fitur ini, Random Forest terpilih dengan F1 uji 0,433, naik dari pembanding 0,424. Penggunaan model dengan `PageValues` untuk prediksi sebelum checkout memerlukan verifikasi bahwa fitur tersedia ketika model membuat prediksi.
+SVM terpilih pada skenario awal dengan `PageValues` berdasarkan F1 validasi 0,689 (mendeteksi 284 dari 382 sesi pembelian dengan 168 *false positive*). Tanpa `PageValues`, Random Forest unggul dengan F1 uji 0,433. Penggunaan model dengan `PageValues` pada sistem produksi *real-time* memerlukan verifikasi bahwa fitur sudah tersedia sebelum *checkout*.
 
+### 2. Evaluasi Akhir Lengkap per Model (Setelah Tuning Fitur Perilaku)
 
-### Hasil Akhir Setelah Tuning Fitur Perilaku
+| Model (dengan `PageValues`) | Akurasi | Precision Pembelian | Recall Pembelian | F1 Pembelian | Macro F1 (mF1) | Weighted F1 | ROC-AUC |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **Random Forest (Model Utama)** | **90,17%** | **67,84%** | 70,68% | **69,23%** | **81,69%** | **90,25%** | **93,26%** |
+| SVM | 89,35% | 63,80% | **73,82%** | 68,45% | 81,02% | 89,66% | 89,58% |
 
-| Model dengan PageValues | Precision | Recall | F1 uji | ROC-AUC |
-|---|---:|---:|---:|---:|
-| Random Forest | 0,678 | 0,707 | 0,692 | 0,933 |
-| SVM | 0,638 | 0,738 | 0,684 | 0,896 |
-
-Random Forest menjadi model utama pada eksperimen lanjutan dengan F1 validasi 0,692. Model menemukan 270 dari 382 sesi pembelian dan menghasilkan 128 prediksi beli yang keliru. Hasil ini menggunakan holdout yang sama seperti eksperimen sebelumnya. Generalisasi peningkatan perlu dikonfirmasi pada sesi baru.
-
-
-Uji kontribusi fitur menggunakan enam fold luar dengan kalibrasi ambang di fold internal. Random Forest dengan fitur lengkap menang di semua fold dengan rata-rata F1 0,688, dibandingkan 0,660 untuk `PageValues` saja dan 0,663 untuk fitur terpilih. Model lengkap dipertahankan.
-
-Eksperimen menuju F1 0,80 menguji enam konfigurasi Random Forest tambahan. F1 validasinya berada pada rentang 0,684 hingga 0,690, sehingga model pembanding dipertahankan. F1 uji kelas pembelian tetap 0,692 dan akurasi uji 90,17%.
+- **Model Utama**: Random Forest (ambang optimal `0.3989`) mendeteksi **270 dari 382** sesi pembelian (*True Positive*), menghasilkan **128** *False Positive*, **112** *False Negative*, dan **1.931** *True Negative*.
+- **Uji Kontribusi Fitur**: Pada 6 fold luar dengan kalibrasi ambang internal, Random Forest dengan fitur lengkap unggul di semua fold (rata-rata F1 **0,688**), dibandingkan `PageValues` saja (0,660) dan fitur terpilih (0,663).
+- **Uji Lanjutan Menuju F1 0,80**: Enam konfigurasi Random Forest tambahan menghasilkan F1 validasi di rentang 0,684–0,690, sehingga model pembanding tetap dipertahankan.
+- **Rekomendasi Bisnis**: Segmentasi intervensi berbasis probabilitas—fokus pemberian promo/insentif pada segmen moderat ($0.40 \le P < 0.70$), *frictionless checkout* tanpa diskon pada segmen tinggi ($P \ge 0.70$), dan *retargeting* non-invasif pada segmen rendah ($P < 0.40$).
 
 ---
 
@@ -114,7 +127,7 @@ Dataset yang digunakan dalam proyek ini bersumber dari repositori publik:
 - **Sumber**: [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset)
 - **Sitasi**: C. Sakar & S. Polat (2019), *Online Shoppers Purchasing Intention Dataset*, UCI Machine Learning Repository.
 - **Lisensi Data**: Creative Commons Attribution 4.0 International (CC BY 4.0)
-- **Jumlah Data Awal**: 12.330 baris (sesi kunjungan)
+- **Jumlah Data Awal**: 12.330 baris (sesi kunjungan) → 12.205 baris setelah penghapusan 125 duplikat
 - **Jumlah Kolom**: 18 atribut (10 fitur numerik, 8 fitur kategorikal/boolean termasuk kolom target `Revenue`)
 
 ### Kamus Data
@@ -133,7 +146,7 @@ Dataset yang digunakan dalam proyek ini bersumber dari repositori publik:
 | 10 | `SpecialDay` | Float | Tingkat kedekatan tanggal sesi dengan hari perayaan tertentu (rentang 0.0 - 1.0) |
 | 11 | `Month` | Object | Bulan sesi kunjungan dilakukan |
 | 12 | `OperatingSystems` | Integer | Kode identifikasi sistem operasi perangkat pengguna |
-| 13 | `Browser` | Integer | Kode identifikasi peramban (browser) web yang digunakan |
+| 13 | `Browser` | Integer | Kode identifikasi peramban (*browser*) web yang digunakan |
 | 14 | `Region` | Integer | Kode wilayah geografis lokasi pengguna |
 | 15 | `TrafficType` | Integer | Kode saluran rujukan atau sumber lalu lintas pengunjung |
 | 16 | `VisitorType` | Object | Tipe pengunjung (`Returning_Visitor`, `New_Visitor`, atau `Other`) |
@@ -150,9 +163,9 @@ Dataset yang digunakan dalam proyek ini bersumber dari repositori publik:
    cd MauArgonAtauAstra
    ```
 
-2. **Pastikan library Python yang dibutuhkan terinstal:**
+2. **Instal seluruh dependensi Python:**
    ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn jupyter
+   pip install -r requirements.txt
    ```
 
 3. **Jalankan Jupyter Notebook:**
