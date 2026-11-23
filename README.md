@@ -33,7 +33,7 @@ Proyek ini bertujuan untuk mengolah dan menganalisis data sesi penjelajahan web 
 ## Tautan Repository & Notebook Utama
 
 - **Repository GitHub**: [https://github.com/oktavianprstyd/MauArgonAtauAstra](https://github.com/oktavianprstyd/MauArgonAtauAstra)
-- **Jupyter Notebook Proyek**: [notebook.ipynb](https://www.google.com/search?q=notebook.ipynb)
+- **Jupyter Notebook Proyek**: [Buka di Google Colab](https://colab.research.google.com/drive/1WsRG95iQbLxMq5VFP_db974yDQUhhh8m?usp=sharing)
 
 ---
 
@@ -55,7 +55,7 @@ MauArgonAtauAstra/
 
 ## Alur Kerja Notebook (*Workflow*)
 
-Notebook [notebook.ipynb](https://www.google.com/search?q=notebook.ipynb) dirancang secara sistematis sesuai dengan panduan praktikum Data Science:
+Notebook [notebook.ipynb](https://colab.research.google.com/drive/1WsRG95iQbLxMq5VFP_db974yDQUhhh8m?usp=sharing) dirancang secara sistematis sesuai dengan panduan praktikum Data Science:
 
 1. **Business Understanding**
    - Menjelaskan latar belakang bisnis pada platform *e-commerce*, tantangan *conversion rate*, rumusan masalah, tujuan analisis, serta metrik evaluasi Machine Learning (*Precision*, *Recall*, *F1-Score*, *ROC-AUC* karena kondisi *class imbalance*).
